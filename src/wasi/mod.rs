@@ -43,6 +43,9 @@ pub type blkcnt_t = i64;
 pub type nfds_t = c_ulong;
 pub type wchar_t = i32;
 pub type nl_item = c_int;
+pub type cc_t = ::c_uchar;
+pub type speed_t = ::c_ulong;
+pub type tcflag_t = ::c_uint;
 pub type __wasi_rights_t = u64;
 
 s_no_extra_traits! {
@@ -184,6 +187,16 @@ s! {
         __nfds: usize,
         __fds: [c_int; FD_SETSIZE as usize],
     }
+
+    pub struct termios {
+        pub c_iflag: ::tcflag_t,
+        pub c_oflag: ::tcflag_t,
+        pub c_cflag: ::tcflag_t,
+        pub c_lflag: ::tcflag_t,
+        pub c_cc: [::cc_t; ::NCCS],
+        pub c_ispeed: ::speed_t,
+        pub c_ospeed: ::speed_t,
+    }
 }
 
 // Declare dirent outside of s! so that it doesn't implement Copy, Eq, Hash,
@@ -290,6 +303,10 @@ pub const POLLHUP: ::c_short = 0x2000;
 pub const POLLNVAL: ::c_short = 0x4000;
 pub const POLLRDNORM: ::c_short = 0x1;
 pub const POLLWRNORM: ::c_short = 0x2;
+pub const ECHO: ::tcflag_t = 0x00000008;
+pub const ICANON: ::tcflag_t = 0x00000002;
+pub const TCSANOW: ::c_int = 0;
+pub const NCCS: usize = 32;
 
 pub const E2BIG: c_int = 1;
 pub const EACCES: c_int = 2;
@@ -553,6 +570,8 @@ extern "C" {
     pub fn putenv(a: *mut c_char) -> c_int;
     pub fn clock() -> clock_t;
     pub fn time(a: *mut time_t) -> time_t;
+    pub fn tcgetattr(fd: ::c_int, termios: *mut ::termios) -> ::c_int;
+    pub fn tcsetattr(fd: ::c_int, optional_actions: ::c_int, termios: *const ::termios) -> ::c_int;
     pub fn difftime(a: time_t, b: time_t) -> c_double;
     pub fn mktime(a: *mut tm) -> time_t;
     pub fn strftime(a: *mut c_char, b: size_t, c: *const c_char, d: *const tm) -> size_t;
